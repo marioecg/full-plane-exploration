@@ -8,7 +8,6 @@ import planeFragment from './plane.frag'
 
 import { Pane } from 'tweakpane'
 
-
 /* -------------------------------------------------------------------------- */
 /*                                     GUI                                    */
 /* -------------------------------------------------------------------------- */
@@ -18,7 +17,7 @@ let PARAMS = {
 
 let pane = new Pane()
 
-pane.addBinding(PARAMS, 'progress', { label: 'progress', min: 0, max: 1, step: 0.1 })
+pane.addBinding(PARAMS, 'progress', { label: 'progress', min: 0, max: 1, step: 0.01 })
 
 /* -------------------------------------------------------------------------- */
 /*                               Sketch settings                              */
@@ -97,6 +96,17 @@ function render() {
   time = clock.getElapsedTime()
 
   uniforms.uTime.value = time
+  plane.material.uniforms.uProgress.value = PARAMS.progress
 
   renderer.render(scene, camera)
+}
+
+function getViewSize(camera) {
+  const fovInRadians = (camera.fov * Math.PI) / 180
+  const height = Math.abs(camera.position.z * Math.tan(fovInRadians / 2) * 2)
+
+  return {
+    viewWidth: height * camera.aspect, 
+    viewHeight: height
+  }
 }
