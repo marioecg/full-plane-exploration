@@ -2,11 +2,14 @@ import './style.css'
 
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import imgPath from '/uv.jpg';
 
 import planeVertex from './plane.vert'
 import planeFragment from './plane.frag'
 
 import { Pane } from 'tweakpane'
+
+import gsap from 'gsap'
 
 /* -------------------------------------------------------------------------- */
 /*                                     GUI                                    */
@@ -60,16 +63,21 @@ function init() {
   scene = new THREE.Scene()
 
   /* ---------------------------------- Plane --------------------------------- */
-  planeGeometry = new THREE.PlaneGeometry(1, 1)
+  let texture = new THREE.TextureLoader().load(imgPath)
+  planeGeometry = new THREE.PlaneGeometry(1, 1, 32, 32) // Make sure the plane has enough tessellation
   planeMaterial = new THREE.ShaderMaterial({
     vertexShader: planeVertex,
     fragmentShader: planeFragment,
     uniforms: {
       uTime: uniforms.uTime,
+      tMap: { value: texture },
       uResolution: uniforms.uResolution,
       uProgress: { value: PARAMS.progress },
       uViewSize: { value: new THREE.Vector2(0, 0) },
+      uAnimation: { value: 0 },
+      uAnimation2: { value: 0 },
     },
+    side: THREE.DoubleSide,
   })
   plane = new THREE.Mesh(planeGeometry, planeMaterial)
 
@@ -78,6 +86,26 @@ function init() {
   /* ------------------------------- Scene utils ------------------------------ */
   controls = new OrbitControls(camera, canvas)
   clock = new THREE.Clock()
+
+  /* ---------------------------------- Tween --------------------------------- */
+  let tl = gsap.timeline({
+    delay: 1
+  })
+
+  
+  tl
+    .to(planeMaterial.uniforms.uAnimation, {
+      value: 1,
+      duration: 2,
+      ease: 'expo.inOut',
+    })
+    .to(planeMaterial.uniforms.uAnimation2, {
+      value: 1,
+      duration: 2,
+      ease: 'power3.inOut',
+    }, 0)
+
+  gsap.delayedCall(4, () => tl.reverse())
 
   /* --------------------------------- Events --------------------------------- */
   resize()
