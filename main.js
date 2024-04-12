@@ -68,6 +68,7 @@ function init() {
       uTime: uniforms.uTime,
       uResolution: uniforms.uResolution,
       uProgress: { value: PARAMS.progress },
+      uViewSize: { value: new THREE.Vector2(0, 0) },
     },
   })
   plane = new THREE.Mesh(planeGeometry, planeMaterial)
@@ -84,10 +85,17 @@ function init() {
 }
 
 function resize() {
+  WIDTH = window.innerWidth
+  HEIGHT = window.innerHeight
+
   camera.aspect = WIDTH / HEIGHT
   camera.updateProjectionMatrix()
 
-  renderer.setSize(WIDTH, HEIGHT)
+  renderer.setSize(WIDTH, HEIGHT)  
+
+  // Set and resize view size
+  let { viewWidth, viewHeight } = getViewSize(camera)
+  planeMaterial.uniforms.uViewSize.value.set(viewWidth, viewHeight)
 }
 
 function render() {
@@ -106,7 +114,7 @@ function getViewSize(camera) {
   const height = Math.abs(camera.position.z * Math.tan(fovInRadians / 2) * 2)
 
   return {
-    viewWidth: height * camera.aspect, 
-    viewHeight: height
+    viewWidth: height * camera.aspect,
+    viewHeight: height,
   }
 }
